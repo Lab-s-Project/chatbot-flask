@@ -1,0 +1,27 @@
+{% from 'field-macro.html' import displayField %}
+{% extends "prelogin-layout.html" %}
+
+{% block title %}Register {% endblock title%}
+
+{% block content %}
+        <h2>처음이신가요</h2>
+        <p>챗봇을 사용하기 위한 계정을 만들어주세요</p>
+
+        <form action="{{ url_for('register') }}", method="POST">
+            {{ displayField(form.student_id, '아이디', autocomplete="off", autofocus=true) }}
+            {{ displayField(form.name, '이름', autocomplete="off") }}
+            {{ displayField(form.phone_number, '전화번호') }}
+            {{ displayField(form.school_name, '학교') }}
+            {{ displayField(form.grade, '학년') }}
+            {{ displayField(form.class_no, '반') }}
+            {{ displayField(form.password, '비밀번호') }}
+            <div class="form-group">
+                <input type="submit" value="생성하기" class="btn btn-warning">
+            </div>
+            {{ form.csrf_token }}
+        </form>
+
+        <hr>
+
+        <p>아이디가 이미 있으면 <a href="{{url_for('login')}}">로그인</a> 하세요</p>
+{% endblock %}

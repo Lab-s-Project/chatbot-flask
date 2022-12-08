@@ -1,0 +1,174 @@
+{# <!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Chatbot</title>
+
+    <!-- Bootstrap -->
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+      integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+      crossorigin="anonymous"
+    />
+
+    <!-- Custom css for chat pages -->
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{{ url_for('static', filename='styles/chat_style.css') }}"
+    />
+
+    <link
+      href="https://fonts.googleapis.com/css?family=Poppins"
+      rel="stylesheet"
+    />
+
+    <script
+      src="https://kit.fontawesome.com/89c0fad386.js"
+      crossorigin="anonymous"
+    ></script>
+  </head>
+
+  <body>
+    <!-- Flash error messages -->
+    {% with messages = get_flashed_messages() %} {% if messages %}
+    <p class="formError">{{ messages[0] }}</p>
+    {% endif %} {% endwith %}
+
+    <div class="s-layout">
+      <!-- Sidebar -->
+      <div class="s-layout__sidebar">
+        <a class="s-sidebar__trigger" href="#0">
+          <i class="fa fa-bars"></i>
+        </a>
+
+        <nav class="s-sidebar__nav">
+          <ul>
+            <li>
+              <a
+                class="{% if request.endpoint == 'home' %}--active{%endif %} else s-sidebar__nav-link"
+                href="{{url_for('home')}}"
+              >
+                <i class="fa-solid fa-house"></i><em>Home</em>
+              </a>
+            </li>
+            <li>
+              <a
+                class="{% if request.endpoint == 'profile' %}--active{%endif %} else s-sidebar__nav-link"
+                href="{{ url_for('profile')}}"
+              >
+                <i class="fa-solid fa-user"></i><em>My Profile</em>
+              </a>
+            </li>
+            <li>
+              <a
+                id="logout-btn"
+                class="s-sidebar__nav-link"
+                href="{{ url_for('logout') }}"
+              >
+                <i class="fa-solid fa-right-from-bracket"></i><em>Logout</em></a
+              >
+            </li>
+          </ul>
+        </nav>
+      </div>
+
+      <!-- Content -->
+      <main class="s-layout__content">
+        <div class="chatbox">
+          <div class="chatbox__support">
+            <div class="chatbox__header">
+              <div class="chatbox__image--header">
+                <img
+                  src="https://img.icons8.com/color/48/000000/circled-user-female-skin-type-5--v1.png"
+                  alt="image"
+                />
+              </div>
+              <div class="chatbox__content--header">
+                <h4 class="chatbox__heading--header">스쿨예봇</h4>
+                <p class="chatbox__description--header">
+                  난 스쿨예봇이야. 어떤 얘기를 할까?
+                </p>
+              </div>
+            </div>
+            <div class="chatbox__messages">
+              <div></div>
+            </div>
+            <div class="chatbox__footer">
+              <input type="text" placeholder="메시지를 써주세요..." />
+              <button class="chatbox__send--footer send__button">
+                보내기 <i class="fa-solid fa-paper-plane"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      $SCRIPT_ROOT = {{ request.script_root | tojson }};
+    </script>
+
+    <!-- Custom chat JS -->
+    <script src="{{ url_for('static', filename='scripts/chat_page.js') }}"></script>
+
+    <!-- Bootstrap -->
+    <script
+      src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+      integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"
+      integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
+      crossorigin="anonymous"
+    ></script>
+
+    <!-- Font Awesome JS -->
+    <script
+      defer
+      src="https://use.fontawesome.com/releases/v5.0.13/js/solid.js"
+      integrity="sha384-tzzSw1/Vo+0N5UhStP3bvwWPq+uvzCMfrN1fEFe+xBmv1C/AtVX5K0uZtmcHitFZ"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      defer
+      src="https://use.fontawesome.com/releases/v5.0.13/js/fontawesome.js"
+      integrity="sha384-6OIrr52G08NpOFSZdxxz1xdNSndlD4vdcf/q2myIUVO0VsqaGHJsB0RaBE01VTOY"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>
+#} {% extends 'layout.html' %} {% block title %}Profile{% endblock %} {% block
+content %}
+<div class="chatbox">
+  <div class="chatbox__support">
+    <div class="chatbox__header">
+      <div class="chatbox__image--header">
+        <img
+          src="https://img.icons8.com/color/48/000000/circled-user-female-skin-type-5--v1.png"
+          alt="image"
+        />
+      </div>
+      <div class="chatbox__content--header">
+        <h4 class="chatbox__heading--header">스쿨예봇</h4>
+        <p class="chatbox__description--header">
+          난 스쿨예봇이야. 어떤 얘기를 할까?
+        </p>
+      </div>
+    </div>
+    <div class="chatbox__messages">
+      <div></div>
+    </div>
+    <div class="chatbox__footer">
+      <input type="text" placeholder="메시지를 써주세요..." />
+      <button class="chatbox__send--footer send__button">
+        보내기 <i class="fa-solid fa-paper-plane"></i>
+      </button>
+    </div>
+  </div>
+</div>
+{% endblock %}

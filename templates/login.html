@@ -1,0 +1,19 @@
+{% from 'field-macro.html' import displayField %} {% extends
+"prelogin-layout.html" %} {% block title %}Login {% endblock %} {% block content
+%}
+<h2>로그인 하기</h2>
+<p>아이디/비밀번호를 넣어주세요</p>
+
+<form action="{{ url_for('login') }}" , method="POST">
+  {{ displayField(form.student_id, '아이디', autofocus=true) }} {{
+  displayField(form.password, '비밀번호') }}
+  <div class="form-group">
+    <input type="submit" value="로그인" class="btn btn-warning" />
+  </div>
+  {{ form.csrf_token }}
+</form>
+
+<hr />
+
+<p>계정이 없습니까? <a href="{{url_for('register')}}">계정만들기</a>.</p>
+{% endblock %}
