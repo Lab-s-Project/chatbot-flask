@@ -21,6 +21,8 @@ login = LoginManager(app)
 login.init_app(app)
 
 # Close database connection
+
+
 def clean_session():
     db.session.close()
     engine_container.dispose()
@@ -28,6 +30,9 @@ def clean_session():
 
 @login.user_loader
 def load_user(id):
+    db.session.close()
+    engine_container.dispose()
+
     return User.query.get(int(id))
 
 
@@ -101,10 +106,10 @@ def home():
             return redirect(url_for('login'))
         else:
             clean_session()  # clear and close the session
-            
+
             return render_template("home.html")
     except Exception as e:
-        print(e)
+        print("Error : ", e)
     finally:
         pass
 
@@ -118,7 +123,7 @@ def predict():
     # add message to the database
     storeMessage(user_id, "message", text)
     response = get_response(text)
-    
+
     # add response to the database
     storeResponse(user_id, "response", response)
 
@@ -135,6 +140,7 @@ def storeMessage(id, _type, text):
     chat = Chat(user_id=user_id, type=type, text=text)
     db.session.add(chat)
     db.session.commit()
+    clean_session()
     return None
 
 
@@ -146,12 +152,13 @@ def storeResponse(id, _type, text):
     chat = Chat(user_id=user_id, type=type, text=text)
     db.session.add(chat)
     db.session.commit()
+    clean_session()
     return None
 
 
 @login_required
 @app.get("/history")
-def get_history():    
+def get_history():
     try:
         if not current_user.is_authenticated:
             flash('로그인 해주세요.', 'danger')
@@ -159,20 +166,22 @@ def get_history():
             return redirect(url_for('login'))
         else:
             user_id = current_user.get_id()
-            history_filters = Chat.query.filter_by(user_id=user_id).order_by(Chat.created_at.asc()).all()
-            
+            history_filters = Chat.query.filter_by(
+                user_id=user_id).order_by(Chat.created_at.asc()).all()
+
             convo = []
             for his in history_filters:
                 type = his.type
                 text = his.text
                 created_at = his.created_at
-                
-                history = {"type": type, "text": text, "created_at": created_at}
+
+                history = {"type": type, "text": text,
+                           "created_at": created_at}
                 convo.append(history)
-            
+
             clean_session()
             return jsonify(convo)
-    
+
     except Exception as e:
         print(e)
     finally:
@@ -190,14 +199,14 @@ def profile():
         else:
             user_id = current_user.get_id()
             user = User.query.filter_by(id=user_id).first_or_404()
-            
+
             clean_session()  # clear and close the session
             return render_template("profile.html", user=user)
     except Exception as e:
         print(e)
     finally:
         pass
-    
+
 
 @app.errorhandler(404)
 def page_not_found(e):
