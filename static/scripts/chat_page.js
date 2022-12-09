@@ -13,14 +13,25 @@ class Chatbox {
 
     this.getChatHistory(chatBox);
 
-    sendButton.addEventListener("click", () => {
-      $('#submit').attr('disabled', 'disabled');
-      this.onSendButton(chatBox);
+    sendButton.addEventListener("click", (e) => {
+      if (!e.detail || e.detail == 1) {
+        return this.onSendButton(chatBox);
+      } else {
+        return false;
+      }
     });
 
     const node = chatBox.querySelector("input");
-    node.addEventListener("keyup", ({ key }) => {
-      if (key === "Enter") {
+    node.addEventListener("keyup", (e) => {
+      e.preventDefault();
+
+      if (
+        e.key === "Enter" &&
+        node.value != "" &&
+        !e.shiftKey &&
+        this.state == false
+      ) {
+        this.state = true;
         this.onSendButton(chatBox);
       }
     });
@@ -50,13 +61,14 @@ class Chatbox {
         this.messages.push(msg2);
         this.updateChatText(chatbox);
 
-        console.log(this.messages);
         textField.value = "";
+        this.state = false;
       })
       .catch((error) => {
         console.error("Error:", error);
         this.updateChatText(chatbox);
         textField.value = "";
+        this.state = false;
       });
   }
 
