@@ -1,18 +1,20 @@
 from .models import *
 from .forms import *
-from sqlalchemy import desc
+from sqlalchemy.pool import NullPool
 from . import app
 from .util import dbconn
 from .chatbot import get_response
 from flask import request, render_template, jsonify, redirect, url_for, flash
 from flask_login import LoginManager, login_user, current_user, logout_user, login_required
 from passlib.hash import sha256_crypt
-# import pymysql
-# pymysql.install_as_MySQLdb()
 
 
 app.config['SQLALCHEMY_DATABASE_URI'] = dbconn.get_connection()
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config.update({
+    'SQLALCHEMY_POOL_SIZE': None,
+    'SQLALCHEMY_POOL_TIMEOUT': None
+})
 db = SQLAlchemy(app)
 engine_container = db.get_engine(app)
 
@@ -21,10 +23,8 @@ login = LoginManager(app)
 login.init_app(app)
 
 # Close database connection
-
-
-def clean_session():
-    db.session.close()
+def clean_session(session):
+    session.close()
     engine_container.dispose()
 
 
@@ -102,15 +102,15 @@ def home():
     try:
         if not current_user.is_authenticated:
             flash('로그인 해주세요.', 'danger')
-            clean_session()  # clear and close the session
+            clean_session(db.session)  # clear and close the session
             return redirect(url_for('login'))
         else:
-            clean_session()  # clear and close the session
-
             return render_template("home.html")
+
     except Exception as e:
         print("Error : ", e)
     finally:
+        clean_session(db.session)
         pass
 
 
@@ -140,7 +140,7 @@ def storeMessage(id, _type, text):
     chat = Chat(user_id=user_id, type=type, text=text)
     db.session.add(chat)
     db.session.commit()
-    clean_session()
+    clean_session(db.session)
     return None
 
 
@@ -152,7 +152,7 @@ def storeResponse(id, _type, text):
     chat = Chat(user_id=user_id, type=type, text=text)
     db.session.add(chat)
     db.session.commit()
-    clean_session()
+    clean_session(db.session)
     return None
 
 
@@ -162,7 +162,7 @@ def get_history():
     try:
         if not current_user.is_authenticated:
             flash('로그인 해주세요.', 'danger')
-            clean_session()  # clear and close the session
+            clean_session(db.session)  # clear and close the session
             return redirect(url_for('login'))
         else:
             user_id = current_user.get_id()
@@ -179,12 +179,13 @@ def get_history():
                            "created_at": created_at}
                 convo.append(history)
 
-            clean_session()
+            clean_session(db.session)
             return jsonify(convo)
 
     except Exception as e:
         print(e)
     finally:
+        clean_session(db.session)
         pass
 
 
@@ -194,30 +195,31 @@ def profile():
     try:
         if not current_user.is_authenticated:
             flash('로그인 해주세요.', 'danger')
-            clean_session()  # clear and close the session
+            clean_session(db.session)  # clear and close the session
             return redirect(url_for('login'))
         else:
             user_id = current_user.get_id()
             user = User.query.filter_by(id=user_id).first_or_404()
 
-            clean_session()  # clear and close the session
+            clean_session(db.session)  # clear and close the session
             return render_template("profile.html", user=user)
     except Exception as e:
         print(e)
     finally:
+        clean_session(db.session)
         pass
 
 
 @app.errorhandler(404)
 def page_not_found(e):
-    return render_template("404.html")
+    return render_template("error/404.html"), 404
 
 
 @app.errorhandler(405)
 def method_not_found(e):
-    return render_template("405.html")
+    return render_template("error/405.html"), 405
 
 
 @app.errorhandler(500)
-def page_not_found(e):
-    return ("Ouch, looks like we're knocked out"), 500
+def internal_error(e):
+    return render_template("error/500.html"), 405
